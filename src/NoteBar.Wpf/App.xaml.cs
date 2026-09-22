@@ -50,6 +50,11 @@ namespace NoteBar.Wpf
                 }
             }
 
+            if (!initialPort.HasValue)
+            {
+                initialPort = 1738;
+            }
+
             var mainWindow = new MainWindow(initialPort);
             MainWindow = mainWindow;
             mainWindow.Show();

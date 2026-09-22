@@ -63,11 +63,14 @@ Invoke-WebRequest -Uri "https://github.com/zodman/NoteBar/releases/latest/downlo
 
 # Install using Chocolatey pointing to the download directory
 choco install notebar --source="'$env:TEMP'" -y
+
+# To install AND automatically configure NoteBar to start on Windows boot:
+choco install notebar --source="'$env:TEMP'" --params "'/AutoStart'" -y
 ```
 
 Or as a single command:
 ```powershell
-irm https://github.com/zodman/NoteBar/releases/latest/download/notebar.1.1.0.nupkg -OutFile "$env:TEMP\notebar.1.1.0.nupkg"; choco install notebar --source="'$env:TEMP'" -y
+irm https://github.com/zodman/NoteBar/releases/latest/download/notebar.1.1.0.nupkg -OutFile "$env:TEMP\notebar.1.1.0.nupkg"; choco install notebar --source="'$env:TEMP'" --params "'/AutoStart'" -y
 ```
 
 #### Upgrading
@@ -101,6 +104,9 @@ choco pack chocolatey/notebar.nuspec
 
 # Install locally (in PowerShell as Administrator)
 choco install notebar --source="'.'" -y
+
+# Or install with auto-start on boot:
+choco install notebar --source="'.'" --params "'/AutoStart'" -y
 ```
 
 ---
@@ -110,6 +116,44 @@ choco install notebar --source="'.'" -y
 1. Download `NoteBar-windows-x64.zip` from [Releases](https://github.com/zodman/NoteBar/releases).
 2. Extract the archive to any folder (e.g. `C:\Tools\NoteBar`).
 3. Add the folder to your `PATH` or launch `notebar.exe` directly.
+
+---
+
+## Launch on System Boot (Auto-Start)
+
+NoteBar can be configured to start automatically whenever you log into Windows or when the system boots up:
+
+### Method 1: During Chocolatey Installation
+Pass the `--params "'/AutoStart'"` flag when installing:
+```powershell
+choco install notebar --source="'$env:TEMP'" --params "'/AutoStart'" -y
+```
+
+### Method 2: Using the Included PowerShell Scripts
+The Chocolatey package installs helper scripts directly into `$env:ProgramFiles\NoteBar\` (and they are also available in `chocolatey/tools/`):
+
+- **Enable Auto-Start for Current User:**
+  ```powershell
+  & "$env:ProgramFiles\NoteBar\Enable-NoteBarStartup.ps1"
+  ```
+- **Enable Auto-Start for All Users (Requires Administrator):**
+  ```powershell
+  & "$env:ProgramFiles\NoteBar\Enable-NoteBarStartup.ps1" -AllUsers
+  ```
+- **Enable Auto-Start on a Custom UDP Port:**
+  ```powershell
+  & "$env:ProgramFiles\NoteBar\Enable-NoteBarStartup.ps1" -Port 1739
+  ```
+- **Disable Auto-Start:**
+  ```powershell
+  & "$env:ProgramFiles\NoteBar\Disable-NoteBarStartup.ps1"
+  ```
+
+### Method 3: Manual Startup Shortcut
+1. Press <kbd>Win</kbd> + <kbd>R</kbd>, type `shell:startup`, and press <kbd>Enter</kbd>.
+2. Right-click inside the folder &rarr; **New** &rarr; **Shortcut**.
+3. Set the target to `"C:\Program Files\NoteBar\NoteBar.Wpf.exe" --port 1738`.
+4. Click **Next**, name it `NoteBar`, and click **Finish**.
 
 ---
 
