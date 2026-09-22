@@ -10,34 +10,100 @@ on:
   release:
     types: [ published ]
   workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type (patch, minor, major)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      custom_version:
+        description: 'Explicit version (overrides bump type, e.g. 1.2.0)'
+        required: false
+        type: string
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build & Package
+    name: Build, Package & Release
     runs-on: windows-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
+      - name: Determine Next Version
+        id: semver
+        shell: pwsh
+        run: |
+          git fetch --tags --force
+          $latestTag = git tag -l "v*" --sort=-v:refname | Select-Object -First 1
+          Write-Host "Latest Git Tag found: '$latestTag'"
+
+          $baseVersion = "1.1.0"
+          $nextVersion = $baseVersion
+
+          # 1. Custom version input from workflow_dispatch
+          $customInput = "${{ inputs.custom_version }}".Trim()
+          if ($customInput -ne "") {
+              $nextVersion = $customInput -replace '^v', ''
+              Write-Host "Using user-provided custom version: $nextVersion"
+          }
+          # 2. Triggered by a tag push (e.g. refs/tags/v1.2.3)
+          elseif ($env:GITHUB_REF -match '^refs/tags/v?([0-9]+\.[0-9]+\.[0-9]+.*)$') {
+              $nextVersion = $Matches[1]
+              Write-Host "Using triggered git tag version: $nextVersion"
+          }
+          # 3. Increment from latest tag
+          elseif ($latestTag -match '^v?([0-9]+)\.([0-9]+)\.([0-9]+)') {
+              $major = [int]$Matches[1]
+              $minor = [int]$Matches[2]
+              $patch = [int]$Matches[3]
+              $bump = "${{ inputs.bump_type }}"
+              if (-not $bump) { $bump = "patch" }
+
+              switch ($bump) {
+                  "major" { $major++; $minor = 0; $patch = 0 }
+                  "minor" { $minor++; $patch = 0 }
+                  default { $patch++ }
+              }
+              $nextVersion = "$major.$minor.$patch"
+              Write-Host "Incremented ($bump) from $latestTag to $nextVersion"
+          }
+          # 4. First release fallback
+          else {
+              $nextVersion = $baseVersion
+              Write-Host "No prior tags found. Using initial version: $nextVersion"
+          }
+
+          $tag = "v$nextVersion"
+          Write-Host "Computed Version: $nextVersion (Tag: $tag)"
+          "VERSION=$nextVersion" >> $env:GITHUB_OUTPUT
+          "TAG=$tag" >> $env:GITHUB_OUTPUT
+
       - name: Restore dependencies
         run: dotnet restore src/NoteBar.sln
 
       - name: Build solution
-        run: dotnet build src/NoteBar.sln -c Release --no-restore
+        run: |
+          dotnet build src/NoteBar.sln -c Release --no-restore -p:Version=${{ steps.semver.outputs.VERSION }} -p:AssemblyVersion=${{ steps.semver.outputs.VERSION }} -p:FileVersion=${{ steps.semver.outputs.VERSION }}
 
       - name: Publish NoteBar Executables
         run: |
-          dotnet publish src/NoteBar.App/NoteBar.App.csproj -c Release -o ./publish
-          dotnet publish src/NoteBar.Wpf/NoteBar.Wpf.csproj -c Release -o ./publish
+          dotnet publish src/NoteBar.App/NoteBar.App.csproj -c Release -p:Version=${{ steps.semver.outputs.VERSION }} -o ./publish
+          dotnet publish src/NoteBar.Wpf/NoteBar.Wpf.csproj -c Release -p:Version=${{ steps.semver.outputs.VERSION }} -o ./publish
 
       - name: Create Portable Zip Package
         run: |
@@ -45,28 +111,25 @@ jobs:
 
       - name: Build Chocolatey Package
         run: |
-          $version = "1.1.0"
-          if ($env:GITHUB_REF -match '^refs/tags/v?([0-9]+\.[0-9]+\.[0-9]+.*)$') {
-              $version = $Matches[1]
-          }
-          Write-Host "Packaging Chocolatey package version: $version"
           New-Item -ItemType Directory -Path chocolatey/tools/src -Force
           Copy-Item -Path ./publish/* -Destination chocolatey/tools/src -Recurse -Force
           New-Item -ItemType Directory -Path ./chocolatey-package -Force
-          choco pack chocolatey/notebar.nuspec --version $version --outputdirectory ./chocolatey-package
+          choco pack chocolatey/notebar.nuspec --version ${{ steps.semver.outputs.VERSION }} --outputdirectory ./chocolatey-package
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: notebar-windows-x64
+          name: notebar-${{ steps.semver.outputs.VERSION }}
           path: |
             ./NoteBar-windows-x64.zip
             ./chocolatey-package/*.nupkg
 
       - name: Publish to GitHub Releases
-        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'release'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.semver.outputs.TAG }}
+          name: NoteBar ${{ steps.semver.outputs.TAG }}
           files: |
             ./NoteBar-windows-x64.zip
             ./chocolatey-package/*.nupkg

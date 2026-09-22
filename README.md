@@ -58,10 +58,11 @@ You can install NoteBar via [Chocolatey](https://chocolatey.org/) using the `.nu
 Open **PowerShell as Administrator** and run:
 
 ```powershell
-# Download the package from the GitHub release
-Invoke-WebRequest -Uri "https://github.com/zodman/NoteBar/releases/latest/download/notebar.1.1.0.nupkg" -OutFile "$env:TEMP\notebar.1.1.0.nupkg"
+# Download the package from the latest GitHub release
+$pkgUrl = (Invoke-RestMethod -Uri "https://api.github.com/repos/zodman/NoteBar/releases/latest").assets | Where-Object { $_.name -like "*.nupkg" } | Select-Object -ExpandProperty browser_download_url -First 1
+Invoke-WebRequest -Uri $pkgUrl -OutFile "$env:TEMP\notebar.latest.nupkg"
 
-# Install using Chocolatey pointing to the download directory
+# Install using Chocolatey
 choco install notebar --source="'$env:TEMP'" -y
 
 # To install AND automatically configure NoteBar to start on Windows boot:
@@ -70,12 +71,13 @@ choco install notebar --source="'$env:TEMP'" --params "'/AutoStart'" -y
 
 Or as a single command:
 ```powershell
-irm https://github.com/zodman/NoteBar/releases/latest/download/notebar.1.1.0.nupkg -OutFile "$env:TEMP\notebar.1.1.0.nupkg"; choco install notebar --source="'$env:TEMP'" --params "'/AutoStart'" -y
+$pkg = (irm "https://api.github.com/repos/zodman/NoteBar/releases/latest").assets | ? { $_.name -like "*.nupkg" } | select -exp browser_download_url -first 1; irm $pkg -OutFile "$env:TEMP\notebar.nupkg"; choco install notebar --source="'$env:TEMP'" --params "'/AutoStart'" -y
 ```
 
-#### Upgrading
+#### Upgrading to the Latest Release
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/zodman/NoteBar/releases/latest/download/notebar.1.1.0.nupkg" -OutFile "$env:TEMP\notebar.1.1.0.nupkg"
+$pkgUrl = (Invoke-RestMethod -Uri "https://api.github.com/repos/zodman/NoteBar/releases/latest").assets | Where-Object { $_.name -like "*.nupkg" } | Select-Object -ExpandProperty browser_download_url -First 1
+Invoke-WebRequest -Uri $pkgUrl -OutFile "$env:TEMP\notebar.latest.nupkg"
 choco upgrade notebar --source="'$env:TEMP'" -y
 ```
 
