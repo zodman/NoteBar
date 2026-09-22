@@ -2,20 +2,50 @@
 
 NoteBar is a status indicator for Windows that displays colored dots or custom icons, fully updated for **Windows 11** and **.NET 8**.
 
+![NoteBar on Windows 11](https://i.imgur.com/T47sSle.png)
+
 NoteBar is a Windows clone of [AnyBar](https://github.com/tonsky/AnyBar).
 
 ---
 
-## Features & Windows 11 Support
+## Windows 11 Support & Features
 
-Because Windows 11 removed legacy DeskBand toolbars, NoteBar has been completely modernized with dual display modes:
+In Windows 11, Microsoft completely removed support for legacy taskbar DeskBands and toolbars (which caused older NoteBar v1.0 and AnyBar Windows ports to stop working). 
 
-1. **System Tray Icon (`NotifyIcon`)**: Directly in your Windows 11 notification area next to the clock.
-   > *Tip: Windows 11 places new notification icons inside the `^` overflow menu by default. Click `^` and drag NoteBar to your visible taskbar to keep it permanently pinned.*
-2. **Floating Taskbar Bar**: A sleek, draggable fluent pill widget docked near your taskbar.
-   - Click and drag the `⋮⋮` handle to move it anywhere.
-   - Right-click for options: **Center Bar on Screen**, **Reset Bar Position**, **Hide Floating Bar (Keep in Tray)**, or **Exit NoteBar**.
-3. **Dual-Stack UDP Listening**: Binds to `0.0.0.0` (IPv4) and `[::]` (IPv6), making it easily accessible from local tools, WSL, local network machines, or Docker containers.
+NoteBar v1.1 has been rebuilt from the ground up to provide seamless Windows 11 support with dual display modes:
+
+1. **Floating Taskbar Pill**:
+   - A modern, draggable Fluent pill widget designed specifically for Windows 11.
+   - Click and drag the `⋮⋮` handle to place it anywhere along your taskbar or anywhere on screen.
+   - Right-click menu options: **Center Bar on Screen**, **Reset Bar Position**, **Hide Floating Bar (Keep in Tray)**, or **Exit NoteBar**.
+   - Remembers its coordinates across restarts in `%APPDATA%\NoteBar\settings.json`.
+2. **System Tray Icon (`NotifyIcon`)**:
+   - Native icon in your Windows 11 notification area (system tray) next to the clock.
+   - Fully interactive with context menu support and status tooltips.
+   - *Tip: Windows 11 groups new icons inside the `^` overflow menu by default. Click `^` and drag the NoteBar icon down to your taskbar to keep it permanently visible.*
+3. **Dual-Stack UDP Listening**:
+   - Automatically binds to both `0.0.0.0` (IPv4) and `[::]` (IPv6).
+   - Accepts status updates locally or across the network, including from WSL, Docker containers, VMs, and remote CI scripts.
+
+---
+
+## System Requirements
+
+Before running NoteBar, ensure your machine meets the following requirements:
+
+| Requirement | Details |
+| :--- | :--- |
+| **Operating System** | **Windows 11** (all editions) or Windows 10 (1809+, 64-bit) |
+| **.NET Runtime** | [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) (`Microsoft.WindowsDesktop.App` 8.0+) |
+| **Network / UDP** | UDP port `1738` (default) or custom ports (`-p <port>`) open on loopback / LAN |
+
+> **Quick Runtime Install:**
+> If you don't have .NET 8 Desktop Runtime installed yet:
+> ```powershell
+> winget install Microsoft.DotNet.DesktopRuntime.8
+> # or via Chocolatey:
+> choco install dotnet-desktopruntime -y
+> ```
 
 ---
 
