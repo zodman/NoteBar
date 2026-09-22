@@ -124,12 +124,65 @@ jobs:
             ./NoteBar-windows-x64.zip
             ./chocolatey-package/*.nupkg
 
+      - name: Generate Release Notes
+        shell: pwsh
+        run: |
+          $ver = "${{ steps.semver.outputs.VERSION }}"
+          $tag = "${{ steps.semver.outputs.TAG }}"
+          $bt3 = [string][char]96 * 3
+          $bt1 = [string][char]96
+          $lines = @(
+            "## NoteBar $tag",
+            "",
+            "Windows 11 status indicator clone of AnyBar (.NET 8). Supports floating pill widget and system tray NotifyIcon, controllable via UDP (${bt1}0.0.0.0:1738${bt1}) and CLI.",
+            "",
+            "---",
+            "",
+            "### Command-Line Installation",
+            "",
+            "#### Option 1: Chocolatey (Recommended)",
+            "Run in **PowerShell as Administrator**:",
+            "",
+            "${bt3}powershell",
+            "# Automatically download and install with auto-start enabled:",
+            "`$pkg = (irm `"https://api.github.com/repos/zodman/NoteBar/releases/latest`").assets | ? { `$_.name -like `"*.nupkg`" } | select -exp browser_download_url -first 1; irm `$pkg -OutFile `"`$env:TEMP\notebar.nupkg`"; choco install notebar --source=`"'`$env:TEMP'`" --params `"'/[AutoStart]'`" -y",
+            "${bt3}",
+            "",
+            "Or install this specific version directly:",
+            "${bt3}powershell",
+            "Invoke-WebRequest -Uri `"https://github.com/zodman/NoteBar/releases/download/$tag/notebar.$ver.nupkg`" -OutFile `"`$env:TEMP\notebar.$ver.nupkg`"",
+            "choco install notebar --source=`"'`$env:TEMP'`" --params `"'/[AutoStart]'`" -y",
+            "${bt3}",
+            "",
+            "#### Option 2: Portable ZIP (PowerShell)",
+            "${bt3}powershell",
+            "Invoke-WebRequest -Uri `"https://github.com/zodman/NoteBar/releases/download/$tag/NoteBar-windows-x64.zip`" -OutFile `"`$env:TEMP\NoteBar-windows-x64.zip`"",
+            "Expand-Archive -Path `"`$env:TEMP\NoteBar-windows-x64.zip`" -DestinationPath `"C:\Tools\NoteBar`" -Force",
+            "& `"C:\Tools\NoteBar\notebar.exe`"",
+            "${bt3}",
+            "",
+            "---",
+            "",
+            "### Quick Usage",
+            "${bt3}powershell",
+            "# Start NoteBar",
+            "notebar",
+            "",
+            "# Change indicator color via UDP:",
+            "echo -n `"green`" | ncat -4u -w1 127.0.0.1 1738",
+            "echo -n `"red`" | ncat -4u -w1 127.0.0.1 1738",
+            "${bt3}"
+          )
+          $content = ($lines -join "`n") -replace '/\[AutoStart\]', '/AutoStart'
+          [System.IO.File]::WriteAllText("release_notes.md", $content, [System.Text.Encoding]::UTF8)
+
       - name: Publish to GitHub Releases
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.semver.outputs.TAG }}
           name: NoteBar ${{ steps.semver.outputs.TAG }}
+          body_path: release_notes.md
           files: |
             ./NoteBar-windows-x64.zip
             ./chocolatey-package/*.nupkg
