@@ -1,21 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
     <metadata>
         <id>notebar</id>
         <title>NoteBar</title>
-        <version>1.0.1</version>
-        <owners>Pavel Stefanov</owners>
-        <authors>Pavel Stefanov</authors>
-        <licenseUrl>https://github.com/PavelStefanov/NoteBar/blob/master/LICENSE</licenseUrl>
-        <projectUrl>https://github.com/PavelStefanov/NoteBar</projectUrl>
-        <packageSourceUrl>https://github.com/PavelStefanov/NoteBar</packageSourceUrl>
-        <projectSourceUrl>https://github.com/PavelStefanov/NoteBar</projectSourceUrl>
+        <version>1.1.0</version>
+        <owners>zodman</owners>
+        <authors>Pavel Stefanov, zodman</authors>
+        <licenseUrl>https://github.com/zodman/NoteBar/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/zodman/NoteBar</projectUrl>
+        <packageSourceUrl>https://github.com/zodman/NoteBar</packageSourceUrl>
+        <projectSourceUrl>https://github.com/zodman/NoteBar</projectSourceUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <tags>notebar anybar somebar</tags>
-        <description>Windows taskbar toolbar indicators</description>
-        <summary>
-            NoteBar is small indicators for Windows taskbar those can display a colored dot or custom icon.
-        </summary>
+        <tags>notebar anybar taskbar systemtray indicator status windows11 dot</tags>
+        <description>NoteBar is a status indicator for Windows 11 and Windows 10 that displays colored dots or custom icons, controllable via UDP and CLI. It is a modernized .NET 8 Windows clone of AnyBar.</description>
+        <summary>Windows 11 &amp; Windows 10 taskbar and system tray status indicators</summary>
     </metadata>
     <files>
         <file src="tools\**" target="tools" />

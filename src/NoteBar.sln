@@ -1,22 +1,12 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.136
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteBar.Toolbar", "NoteBar.Toolbar\NoteBar.Toolbar.csproj", "{F387C1F1-3096-4C05-BD50-C869247BDB43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoteBar.Core", "NoteBar.Core\NoteBar.Core.csproj", "{77974F17-DC27-4DC9-9765-9617E3F799F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteBar.Wpf", "NoteBar.Wpf\NoteBar.Wpf.csproj", "{B099FE8F-F740-4850-A3D0-CBB2E2FD5EDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoteBar.Wpf", "NoteBar.Wpf\NoteBar.Wpf.csproj", "{B099FE8F-F740-4850-A3D0-CBB2E2FD5EDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteBar.Core", "NoteBar.Core\NoteBar.Core.csproj", "{77974F17-DC27-4DC9-9765-9617E3F799F1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteBar.WCF", "NoteBar.WCF\NoteBar.WCF.csproj", "{53EE3AC2-1787-4F3A-AB7D-DB7AB52C1C0D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteBar.App", "NoteBar.App\NoteBar.App.csproj", "{1094A2EC-AAAE-4E6A-856A-AFCCC8E37D52}"
-	ProjectSection(ProjectDependencies) = postProject
-		{53EE3AC2-1787-4F3A-AB7D-DB7AB52C1C0D} = {53EE3AC2-1787-4F3A-AB7D-DB7AB52C1C0D}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteBar.DeskBand", "NoteBar.DeskBand\NoteBar.DeskBand.csproj", "{681E3500-1DC9-48B4-BA2C-DAF5A456B69B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoteBar.App", "NoteBar.App\NoteBar.App.csproj", "{1094A2EC-AAAE-4E6A-856A-AFCCC8E37D52}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D7934097-E9BF-45EA-B770-06FA6A0000F4}"
 	ProjectSection(SolutionItems) = preProject
@@ -29,30 +19,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F387C1F1-3096-4C05-BD50-C869247BDB43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F387C1F1-3096-4C05-BD50-C869247BDB43}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F387C1F1-3096-4C05-BD50-C869247BDB43}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F387C1F1-3096-4C05-BD50-C869247BDB43}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B099FE8F-F740-4850-A3D0-CBB2E2FD5EDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B099FE8F-F740-4850-A3D0-CBB2E2FD5EDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B099FE8F-F740-4850-A3D0-CBB2E2FD5EDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B099FE8F-F740-4850-A3D0-CBB2E2FD5EDB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{77974F17-DC27-4DC9-9765-9617E3F799F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{77974F17-DC27-4DC9-9765-9617E3F799F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77974F17-DC27-4DC9-9765-9617E3F799F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77974F17-DC27-4DC9-9765-9617E3F799F1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{53EE3AC2-1787-4F3A-AB7D-DB7AB52C1C0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{53EE3AC2-1787-4F3A-AB7D-DB7AB52C1C0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{53EE3AC2-1787-4F3A-AB7D-DB7AB52C1C0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{53EE3AC2-1787-4F3A-AB7D-DB7AB52C1C0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B099FE8F-F740-4850-A3D0-CBB2E2FD5EDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B099FE8F-F740-4850-A3D0-CBB2E2FD5EDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B099FE8F-F740-4850-A3D0-CBB2E2FD5EDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B099FE8F-F740-4850-A3D0-CBB2E2FD5EDB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1094A2EC-AAAE-4E6A-856A-AFCCC8E37D52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1094A2EC-AAAE-4E6A-856A-AFCCC8E37D52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1094A2EC-AAAE-4E6A-856A-AFCCC8E37D52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1094A2EC-AAAE-4E6A-856A-AFCCC8E37D52}.Release|Any CPU.Build.0 = Release|Any CPU
-		{681E3500-1DC9-48B4-BA2C-DAF5A456B69B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{681E3500-1DC9-48B4-BA2C-DAF5A456B69B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{681E3500-1DC9-48B4-BA2C-DAF5A456B69B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{681E3500-1DC9-48B4-BA2C-DAF5A456B69B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

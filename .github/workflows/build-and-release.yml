@@ -1,0 +1,75 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ master, main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ master, main ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & Package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore src/NoteBar.sln
+
+      - name: Build solution
+        run: dotnet build src/NoteBar.sln -c Release --no-restore
+
+      - name: Publish NoteBar Executables
+        run: |
+          dotnet publish src/NoteBar.App/NoteBar.App.csproj -c Release -o ./publish
+          dotnet publish src/NoteBar.Wpf/NoteBar.Wpf.csproj -c Release -o ./publish
+
+      - name: Create Portable Zip Package
+        run: |
+          Compress-Archive -Path ./publish/* -DestinationPath ./NoteBar-windows-x64.zip
+
+      - name: Build Chocolatey Package
+        run: |
+          $version = "1.1.0"
+          if ($env:GITHUB_REF -match '^refs/tags/v?([0-9]+\.[0-9]+\.[0-9]+.*)$') {
+              $version = $Matches[1]
+          }
+          Write-Host "Packaging Chocolatey package version: $version"
+          New-Item -ItemType Directory -Path chocolatey/tools/src -Force
+          Copy-Item -Path ./publish/* -Destination chocolatey/tools/src -Recurse -Force
+          New-Item -ItemType Directory -Path ./chocolatey-package -Force
+          choco pack chocolatey/notebar.nuspec --version $version --outputdirectory ./chocolatey-package
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: notebar-windows-x64
+          path: |
+            ./NoteBar-windows-x64.zip
+            ./chocolatey-package/*.nupkg
+
+      - name: Publish to GitHub Releases
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ./NoteBar-windows-x64.zip
+            ./chocolatey-package/*.nupkg
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

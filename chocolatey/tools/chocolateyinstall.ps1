@@ -1,63 +1,40 @@
-﻿#Requires -RunAsAdministrator
+#Requires -RunAsAdministrator
 
 $ErrorActionPreference = 'Stop';
 
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 
-Get-ChocolateyUnzip "$toolsDir\src.zip" "$toolsDir\src"
+$NoteBarDir = "$env:ProgramFiles\NoteBar"
 
-$NoteBarDir = "$env:Programfiles\NoteBar"
+# Stop any running processes before install
+Stop-Process -Name "NoteBar*", "notebar" -Force -ErrorAction SilentlyContinue
 
 # Create or clear NoteBar directory
 if (!(Test-Path -Path $NoteBarDir)) {
-    New-Item -ItemType Directory -Path $NoteBarDir    
+    New-Item -ItemType Directory -Path $NoteBarDir -Force
 } 
-# If Notebar's already installed. Hack. Next it'll be unnecessary
 else {
-    $NoteBarDll = "$NoteBarDir\NoteBar.Toolbar.dll"
-
-    # Unregister NoteBar's toolbar
-    if (Test-Path -Path $NoteBarDll) {
-        # Get regasm path
-        $dotnetPath = [System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory()
-        $RegasmPath = "$dotnetPath\RegAsm.exe"
-
-        # Unregistre NoteBar's deskband
-        & $RegasmPath /u $NoteBarDll
-        Stop-Process -ProcessName explorer
-        Start-Sleep -s 2
-    }
-
-    # Delete src
-    Remove-Item -Path "$NoteBarDir\*" -Recurse -Force
+    Remove-Item -Path "$NoteBarDir\*" -Recurse -Force -ErrorAction SilentlyContinue
 }
 
-# Copy src
-Get-ChildItem -Path "$toolsDir\src" | Copy-Item -Destination $NoteBarDir
+# Extract or copy binary payload
+if (Test-Path "$toolsDir\src.zip") {
+    Get-ChocolateyUnzip "$toolsDir\src.zip" "$NoteBarDir"
+} elseif (Test-Path "$toolsDir\src") {
+    Copy-Item -Path "$toolsDir\src\*" -Destination $NoteBarDir -Recurse -Force
+} else {
+    Copy-Item -Path "$toolsDir\*" -Destination $NoteBarDir -Recurse -Force -Exclude "*.ps1","*.txt","*.nuspec"
+}
 
-# Add NoteBar to PATH
-$Path = [Environment]::GetEnvironmentVariable("Path")
+# Add NoteBar to system PATH
+$Path = [Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
 if (!($Path.Split(";") -contains $NoteBarDir)) {
-    [Environment]::SetEnvironmentVariable("Path", 
-        "$env:Path;$NoteBarDir", [System.EnvironmentVariableTarget]::Machine)
+    [Environment]::SetEnvironmentVariable("Path", "$Path;$NoteBarDir", [System.EnvironmentVariableTarget]::Machine)
+    $env:Path = "$env:Path;$NoteBarDir"
 }
 
-# Add EventSource for NoteBar logging
-if (!([System.Diagnostics.EventLog]::SourceExists("NoteBar"))) {
-    [System.Diagnostics.EventLog]::CreateEventSource("NoteBar", "Application")    
-}
-
-# Add NoteBar folder for local icons
+# Create AppData directory for local icons and configuration
 $NoteBarAppDataDir = "$env:APPDATA\NoteBar"
-if (!(Test-Path -Path $NoteBarAppDataDir )) {
-    New-Item -ItemType Directory -Path $NoteBarAppDataDir
+if (!(Test-Path -Path $NoteBarAppDataDir)) {
+    New-Item -ItemType Directory -Path $NoteBarAppDataDir -Force
 }
-
-# Get regasm path
-$dotnetPath = [System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory()
-$RegasmPath = "$dotnetPath\RegAsm.exe"
-
-# Registre NoteBar deskband
-& $RegasmPath /codebase "$NoteBarDir\NoteBar.Toolbar.dll"
-
-Remove-Item -Path "$toolsDir\src" -Recurse -Force

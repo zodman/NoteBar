@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,15 +7,17 @@ namespace NoteBar.Core.Icons
 {
     public class IconsService
     {
-        private string[] DefaultIcons { get; set; }
-
-        public IconsService()
+        public static readonly string[] DefaultIconNames = new[]
         {
-            DefaultIcons = GetDefaultIcons();
-        }
+            "black", "blue", "cyan", "exclamation", "green",
+            "orange", "purple", "question", "red", "white", "yellow"
+        };
 
         public string FindIcon(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+
             var image = FindIconInAppData(name);
             if (image != null)
             {
@@ -32,6 +33,30 @@ namespace NoteBar.Core.Icons
             return null;
         }
 
+        public Stream GetIconStream(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+
+            var appDataPath = FindIconInAppData(name);
+            if (appDataPath != null && File.Exists(appDataPath))
+            {
+                return File.OpenRead(appDataPath);
+            }
+
+            var cleanName = name.ToLowerInvariant().Trim();
+            if (DefaultIconNames.Contains(cleanName))
+            {
+                var assembly = typeof(IconsService).Assembly;
+                var resName = $"NoteBar.Core.Icons.Resources.{cleanName}.png";
+                var stream = assembly.GetManifestResourceStream(resName);
+                if (stream != null)
+                    return stream;
+            }
+
+            return null;
+        }
+
         private string FindIconInAppData(string name)
         {
             var appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "NoteBar");
@@ -42,23 +67,13 @@ namespace NoteBar.Core.Icons
 
         private string FindIconInResource(string name)
         {
-            var iconPath = $"Icons/Resources/{name}.png";
-
-            return DefaultIcons.Any(i => i.Equals(iconPath, StringComparison.InvariantCultureIgnoreCase)) ?
-                $"pack://application:,,,/NoteBar.Core;component/{iconPath}" : null;
-        }
-
-        private string[] GetDefaultIcons()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            string resourcesName = $"{assembly.GetName().Name}.g.resources";
-            using (var stream = assembly.GetManifestResourceStream(resourcesName))
+            var cleanName = name.ToLowerInvariant().Trim();
+            if (DefaultIconNames.Contains(cleanName))
             {
-                using (var reader = new System.Resources.ResourceReader(stream))
-                {
-                    return reader.Cast<DictionaryEntry>().Select(entry => (string)entry.Key).ToArray();
-                }
+                return $"pack://application:,,,/NoteBar.Core;component/Icons/Resources/{cleanName}.png";
             }
+
+            return null;
         }
     }
 }
